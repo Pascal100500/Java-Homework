@@ -10,6 +10,8 @@ repositories {
 }
 
 dependencies {
+    implementation("com.oracle.database.jdbc:ojdbc11:23.6.0.24.10")
+
     compileOnly("org.projectlombok:lombok:1.18.42")
     annotationProcessor("org.projectlombok:lombok:1.18.42")
 
