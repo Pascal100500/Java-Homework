@@ -1,5 +1,6 @@
 package ru.maxim.gamestore;
 
+import java.security.GeneralSecurityException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -16,17 +17,60 @@ public class DatabaseTest {
                      DriverManager.getConnection(url, username, password)) {
 
             System.out.println("Подключение к Oracle успешно!");
+
             var statement = connection.createStatement();
-            var query = "SELECT * FROM categories";
+
+            var query = "SELECT COUNT(*) FROM categories";
+
             var result = statement.executeQuery(query);
+
             if (result.next()) {
-                System.out.println("ID: " + result.getLong("ID"));
-                System.out.println("Название: " + result.getString("NAME"));
+                int count = result.getInt(1);
+
+                System.out.println("Количество категорий: " + count);
+                if (count == 0) {
+                    System.out.println("Категорий нет. Создаём начальные данные.");
+                    var insertQuery = "INSERT INTO categories (name) VALUES ('RPG')";
+                    statement.executeUpdate(insertQuery);
+                    System.out.println("Категория RPG создана.");
+                }
+
+                var queryAdmin = "SELECT COUNT(*) FROM users WHERE role = 'ADMIN'";
+
+                var resultAdmin = statement.executeQuery(queryAdmin);
+
+                if (resultAdmin.next()) {
+
+                    int countAdmin = resultAdmin.getInt(1);
+
+                    System.out.println("Количество пользователей с ролью ADMIN: " + countAdmin);
+
+                    if (countAdmin == 0) {
+
+                        System.out.println(
+                                "Пользователей с ролью ADMIN нет. Создаём администратора."
+                        );
+
+                        String adminPassword = "admin123";
+
+                        String salt = PasswordHasher.generateSalt();
+
+                        String hash = PasswordHasher.hashPassword(adminPassword, salt);
+
+                        System.out.println("Пароль: " + adminPassword);
+                        System.out.println("Salt: " + salt);
+                        System.out.println("Hash: " + hash);
+
+                    }
+                }
             }
+
 
         } catch (SQLException e) {
             System.out.println("Ошибка подключения к Oracle:");
             e.printStackTrace();
+        } catch (GeneralSecurityException e) {
+            throw new RuntimeException(e);
         }
     }
 }
