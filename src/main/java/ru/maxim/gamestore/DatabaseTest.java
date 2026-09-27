@@ -61,6 +61,17 @@ public class DatabaseTest {
                         System.out.println("Salt: " + salt);
                         System.out.println("Hash: " + hash);
 
+                        var insertAdmin = connection.prepareStatement(
+                                "INSERT INTO users (username, password, role, salt) VALUES (?, ?, ?, ?)"
+                        );
+                        insertAdmin.setString(1, "admin");
+                        insertAdmin.setString(2, hash);
+                        insertAdmin.setString(3, "ADMIN");
+                        insertAdmin.setString(4, salt);
+
+                        insertAdmin.executeUpdate();
+                        System.out.println("Администратор создан.");
+
                     }
                 }
             }
